@@ -55,6 +55,7 @@
       var titleDiv = document.getElementById("titleDiv");
       var pings = 5;
       var goal = 50;
+      var countDown = 3;
 
       /************************************************************
        * Creates a new WebScene instance. A WebScene must reference
@@ -96,9 +97,13 @@
         if(pings <= 0)
         {
           pings = 0;
-          location.replace("file:///C:/Users/jef_l/Documents/GitHub/HackTheUDiscovery/GameOver.html");
+          document.getElementById("logoDiv").innerHTML = "Game Over!";
+          setInterval(function(){countDown--; if(countDown <= 0){location.replace("file:///C:/Users/jef_l/Documents/GitHub/HackTheUDiscovery/GameOver.html");}},1000);
+          
         }
+        else{
         document.getElementById("logoDiv").innerHTML = "Pings: " + pings+"<br>"+"Goal: " + goal;
+        }
         });
 
       view.ui.add("logoDiv", "top-left");
