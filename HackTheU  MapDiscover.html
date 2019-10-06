@@ -47,10 +47,11 @@
   </style>
 
   <script>
-    require(["esri/Map","esri/views/SceneView", "esri/WebScene"], function (
+    require(["esri/Map","esri/views/SceneView", "esri/WebScene", "esri/views/navigation/gamepad/GamepadSettings"], function (
       Map,
       SceneView,
-      WebScene
+      WebScene,
+      GamepadSettings
     ) {
       var titleDiv = document.getElementById("titleDiv");
       var pings = 5;
@@ -83,6 +84,7 @@
         }
       });
 
+      view.navigation.gamepad.tiltDirection = "forward-up";
       
 
       view.when(function () {
