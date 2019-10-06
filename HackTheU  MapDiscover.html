@@ -30,6 +30,9 @@
         Graphic
       ) {
         var titleDiv = document.getElementById("titleDiv");
+        
+        // Create set to track discovery
+        var DSet = new Set();
 
         /************************************************************
          * Creates a new WebScene instance. A WebScene must reference
@@ -105,52 +108,57 @@
         // Function to dispaly graphics returned from querry.
         function addGraphics(result) {
           result.features.forEach(function(feature) {
-            console.log("f", feature)
-            var g = new Graphic({
-              geometry: feature.geometry,
-              attributes: feature.attributes,
+            console.log(!DSet.has(feature.attributes.poiName));
+            if (!DSet.has(feature.attributes.poiName)){
+              // add to set
+              DSet.add(feature.attributes.poiName);
+              // indicate on map
+              var g = new Graphic({
+                geometry: feature.geometry,
+                attributes: feature.attributes,
               
-              symbol: {
-                type: "point-3d", // autocasts as new PointSymbol3D()
-                symbolLayers: [{
-                  type: "icon", // autocasts as new IconSymbol3DLayer()
-                  resource: { primitive: "circle" },
-                  material: { color: "#D13470" },
-                  size: 20,
-                  outline: {
+                symbol: {
+                  type: "point-3d", // autocasts as new PointSymbol3D()
+                  symbolLayers: [{
+                    type: "icon", // autocasts as new IconSymbol3DLayer()
+                    resource: { primitive: "circle" },
+                    material: { color: "#D13470" },
+                    size: 20,
+                    outline: {
+                      color: "white",
+                      size: 2
+                    }
+                  }],
+
+                  verticalOffset: verticalOffset,
+
+                  callout: {
+                    type: "line", // autocasts as new LineCallout3D()
                     color: "white",
-                    size: 2
+                    size: 2,
+                    border: {
+                      color: "#D13470"
+                    }
                   }
-                }],
-
-                verticalOffset: verticalOffset,
-
-                callout: {
-                  type: "line", // autocasts as new LineCallout3D()
-                  color: "white",
-                  size: 2,
-                  border: {
-                    color: "#D13470"
-                  }
-                }
-              },
+                },
               
-              popupTemplate: {
-                title: "{poiName}",
-                content: "{address}"
-              }
-            });
-            console.log('g', g)
-            graphicsLayer.add(g);
+                popupTemplate: {
+                  title: "{poiName}",
+                  content: "{address}"
+                }
+              });
+              console.log('g', g)
+              graphicsLayer.add(g);
+              //TODO Record score
+              
+            }
           });
         }
         console.log("Passes add graphics");
 
         // Function to create querries to the featureLayer
         function queryFeatureLayer(point, distance, spatialRelationship) {
-          console.log(777)
           var query = featureLayer.createQuery();
-          console.log('q', query)
           query.geometry = point;
           query.distance = distance;
           query.units = "miles";
