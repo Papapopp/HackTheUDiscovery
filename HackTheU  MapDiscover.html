@@ -50,6 +50,7 @@
       WebScene
     ) {
       var titleDiv = document.getElementById("titleDiv");
+      var pings = 5;
 
       /************************************************************
        * Creates a new WebScene instance. A WebScene must reference
@@ -86,7 +87,18 @@
         titleDiv.innerHTML = title;
       });
 
+      view.on("click",function(event){
+        pings--;
+        if(pings <= 0)
+        {
+          pings = 0;
+        }
+        document.getElementById("logoDiv").innerHTML = "Pings: " + pings;
+        });
+
       view.ui.add("logoDiv", "bottom-right");
+      
+      
     });
   </script>
 
@@ -97,6 +109,6 @@
   <div id="viewDiv" class="esri-widget">
     <div id="titleDiv"></div>
   </div>
-  <div id="logoDiv" class="esri-widget">Logo</div>
+  <div id="logoDiv" class="esri-widget">Pings: 5</div>
 </body>
 </html>
