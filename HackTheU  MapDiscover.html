@@ -40,6 +40,9 @@
         color: pink;
         text-align: center;
         width: 100px;
+        margin-left: 700%;
+        margin-top: -200%;
+        font-size: 14pt;
       }
   </style>
 
@@ -51,6 +54,7 @@
     ) {
       var titleDiv = document.getElementById("titleDiv");
       var pings = 5;
+      var goal = 50;
 
       /************************************************************
        * Creates a new WebScene instance. A WebScene must reference
@@ -93,10 +97,10 @@
         {
           pings = 0;
         }
-        document.getElementById("logoDiv").innerHTML = "Pings: " + pings;
+        document.getElementById("logoDiv").innerHTML = "Pings: " + pings+"<br>"+"Goal: " + goal;
         });
 
-      view.ui.add("logoDiv", "bottom-right");
+      view.ui.add("logoDiv", "top-left");
       
       
     });
@@ -109,6 +113,7 @@
   <div id="viewDiv" class="esri-widget">
     <div id="titleDiv"></div>
   </div>
-  <div id="logoDiv" class="esri-widget">Pings: 5</div>
+  <div id="logoDiv" class="esri-widget">Pings: 5<br>Goal: 50</div>
+  
 </body>
 </html>
