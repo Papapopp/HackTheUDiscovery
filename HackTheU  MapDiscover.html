@@ -15,9 +15,19 @@
     <script src="https://js.arcgis.com/4.12/"></script>
 
     <script>
-      require(["esri/views/SceneView", "esri/WebScene"], function(
+      require([
+        "esri/views/SceneView",
+        "esri/WebScene",
+        //*** ADD ***//
+        "esri/layers/FeatureLayer",
+        "esri/layers/GraphicsLayer",
+        "esri/Graphic"
+      ], function(
         SceneView,
-        WebScene
+        WebScene,
+        FeatureLayer,
+        GraphicsLayer,
+        Graphic
       ) {
         var titleDiv = document.getElementById("titleDiv");
 
@@ -35,10 +45,8 @@
             id: "c0e78b1e2f204ecfa866e1a75fb9bc67"
           }
         });
+        console.log("Passes Scene");
 
-        /************************************************************
-         * Set the WebScene instance to the map property in a SceneView.
-         ************************************************************/
         var view = new SceneView({
           map: scene,
           container: "viewDiv",
@@ -46,13 +54,117 @@
             top: 40
           }
         });
+        console.log(view);
+        console.log("Passes view");
 
+        // Layer used to draw graphics
+        var graphicsLayer = new GraphicsLayer();
+        scene.add(graphicsLayer); 
+        
+        //view.<collection>graphics
+        
+        console.log("Passes graphics layer");
+
+        var featureLayer;
         view.when(function() {
           // when the scene and view resolve, display the scene's
           // title in the DOM
           var title = scene.portalItem.title;
           titleDiv.innerHTML = title;
+
+          // Reference the feature layer to query
+          // Will be: https://services7.arcgis.com/1EHlBtDZfCcbIqb1/arcgis/rest/services/aaa19f/FeatureServer
+          var layerList = scene.layers;
+          var featureIndex = layerList.findIndex(function(item) {
+            return item.type === "feature";
+          });
+          featureLayer = layerList.getItemAt(featureIndex);
+          console.log(featureLayer);
+          //queryFeatureLayer(view.toMap(view.center), 1500, "intersects");
         });
+        console.log("Passes When");
+
+        view.on("click", function(evt) {
+          const geom = view.toMap(evt);
+          // pass map  coords, radius, and spatial relationship
+          queryFeatureLayer(geom, 0.1, "intersects");
+        });
+        console.log("Passes click");
+        
+        graphicsLayer.elevationInfo = {
+          mode: "relative-to-scene"
+        };
+        
+        var verticalOffset = {
+          screenLength: 40,
+          maxWorldLength: 200,
+          minWorldLength: 35
+        };
+        
+        
+        // Function to dispaly graphics returned from querry.
+        function addGraphics(result) {
+          result.features.forEach(function(feature) {
+            console.log("f", feature)
+            var g = new Graphic({
+              geometry: feature.geometry,
+              attributes: feature.attributes,
+              
+              symbol: {
+                type: "point-3d", // autocasts as new PointSymbol3D()
+                symbolLayers: [{
+                  type: "icon", // autocasts as new IconSymbol3DLayer()
+                  resource: { primitive: "circle" },
+                  material: { color: "#D13470" },
+                  size: 20,
+                  outline: {
+                    color: "white",
+                    size: 2
+                  }
+                }],
+
+                verticalOffset: verticalOffset,
+
+                callout: {
+                  type: "line", // autocasts as new LineCallout3D()
+                  color: "white",
+                  size: 2,
+                  border: {
+                    color: "#D13470"
+                  }
+                }
+              },
+              
+              popupTemplate: {
+                title: "{poiName}",
+                content: "{address}"
+              }
+            });
+            console.log('g', g)
+            graphicsLayer.add(g);
+          });
+        }
+        console.log("Passes add graphics");
+
+        // Function to create querries to the featureLayer
+        function queryFeatureLayer(point, distance, spatialRelationship) {
+          console.log(777)
+          var query = featureLayer.createQuery();
+          console.log('q', query)
+          query.geometry = point;
+          query.distance = distance;
+          query.units = "miles";
+          query.spatialRelationship = spatialRelationship;
+          query.outFields  = ["*"];
+          query.returnGeometry = true;
+          query.where = "topCat IN ('Restaurants and Other Eating Places')";
+          // featureLayer = scene.layers.getItemAt(1);
+          featureLayer.queryFeatures(query).then(function(result) {
+            console.log(result);
+            addGraphics(result);
+          });
+        }
+        console.log("Passes query feature layer");
       });
     </script>
 
